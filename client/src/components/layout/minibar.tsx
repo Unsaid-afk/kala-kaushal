@@ -112,11 +112,14 @@ export function MiniBar() {
     setLocation('/kala-pradarshan?upload=1');
   };
 
+  // Navigation items based on authentication status
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
     { path: '/kala-pradarshan', label: 'Showcase', icon: Trophy },
-    { path: '/leaderboard', label: 'Leaderboard', icon: Activity },
-    { path: '/assessment', label: 'Assess', icon: Activity },
+    ...(isAuthenticated ? [
+      { path: '/leaderboard', label: 'Leaderboard', icon: Activity },
+      { path: '/assessment', label: 'Assess', icon: Activity },
+    ] : []),
   ];
 
   const currentPath = location;
