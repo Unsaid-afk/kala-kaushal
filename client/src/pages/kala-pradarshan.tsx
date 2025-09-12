@@ -14,13 +14,17 @@ import {
   ChevronRight,
   FileVideo,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Share2,
+  Copy,
+  ExternalLink
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +71,7 @@ export default function KalaPradarshan() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   const { data: videos, isLoading, error, refetch } = useQuery<KalaPradarshanVideo[]>({
     queryKey: ["/api/kala-pradarshan", selectedSport, page],
@@ -89,6 +94,7 @@ export default function KalaPradarshan() {
   });
 
   const handleVideoClick = async (video: KalaPradarshanVideo) => {
+    setVideoError(false); // Reset video error state
     setSelectedVideo(video);
     
     // Increment view count
@@ -96,7 +102,11 @@ export default function KalaPradarshan() {
       await fetch(`/api/kala-pradarshan/${video.id}/view`, {
         method: 'POST',
       });
-      // Optionally refetch to update view count
+      
+      // Optimistically update the modal state
+      setSelectedVideo(prev => prev ? { ...prev, views: prev.views + 1 } : null);
+      
+      // Refetch to keep list in sync
       refetch();
     } catch (error) {
       console.error("Failed to increment view count:", error);
@@ -108,6 +118,12 @@ export default function KalaPradarshan() {
       await fetch(`/api/kala-pradarshan/${videoId}/like`, {
         method: 'POST',
       });
+      
+      // Optimistically update the modal state
+      if (selectedVideo && selectedVideo.id === videoId) {
+        setSelectedVideo(prev => prev ? { ...prev, likes: prev.likes + 1 } : null);
+      }
+      
       refetch();
       toast({
         title: "Video liked!",
@@ -316,6 +332,62 @@ export default function KalaPradarshan() {
     setUploadProgress(0);
     setIsUploading(false);
     setDragActive(false);
+  };
+
+  // Video player and sharing handlers
+  const handleVideoError = () => {
+    setVideoError(true);
+    toast({
+      title: "Video Error",
+      description: "Unable to load the video. The file may be corrupted or unsupported.",
+      variant: "destructive",
+    });
+  };
+
+  const handleShareVideo = async (video: KalaPradarshanVideo) => {
+    const shareUrl = `${window.location.origin}/kala-pradarshan?video=${video.id}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: video.title,
+          text: `Check out this amazing ${video.sport} video: ${video.description}`,
+          url: shareUrl,
+        });
+        toast({
+          title: "Shared!",
+          description: "Video shared successfully",
+        });
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          handleCopyLink(shareUrl);
+        }
+      }
+    } else {
+      handleCopyLink(shareUrl);
+    }
+  };
+
+  const handleCopyLink = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link Copied",
+        description: "Video link copied to clipboard",
+      });
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy link. Please copy the URL manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleOpenInNewTab = (video: KalaPradarshanVideo) => {
+    const shareUrl = `${window.location.origin}/kala-pradarshan?video=${video.id}`;
+    window.open(shareUrl, '_blank');
   };
 
   if (isLoading) {
@@ -567,18 +639,36 @@ export default function KalaPradarshan() {
           
           {selectedVideo && (
             <div className="space-y-4">
-              {/* Video Player Placeholder */}
-              <div className="aspect-video bg-black rounded-lg flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Play className="w-16 h-16 mx-auto mb-4 opacity-70" />
-                  <p className="text-lg font-semibold mb-2">Sports Video</p>
-                  <p className="text-sm opacity-70">
-                    File: {selectedVideo.metadata?.originalName || 'video.mp4'}
-                  </p>
-                  <p className="text-xs opacity-50">
-                    Size: {formatFileSize(selectedVideo.metadata?.size || 0)}
-                  </p>
-                </div>
+              {/* Video Player */}
+              <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                {!videoError ? (
+                  <video
+                    src={selectedVideo.videoUrl}
+                    controls
+                    className="w-full h-full object-contain"
+                    onError={handleVideoError}
+                    onLoadStart={() => setVideoError(false)}
+                    preload="metadata"
+                  >
+                    <source src={selectedVideo.videoUrl} type={selectedVideo.metadata?.mimetype || 'video/mp4'} />
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-center text-white p-8">
+                    <div>
+                      <AlertCircle className="w-16 h-16 mx-auto mb-4 opacity-70" />
+                      <p className="text-lg font-semibold mb-2">Video Unavailable</p>
+                      <p className="text-sm opacity-70 mb-4">
+                        Unable to load the video. The file may be corrupted or unsupported.
+                      </p>
+                      <div className="text-xs opacity-50 space-y-1">
+                        <p>File: {selectedVideo.metadata?.originalName || 'video.mp4'}</p>
+                        <p>Size: {formatFileSize(selectedVideo.metadata?.size || 0)}</p>
+                        <p>Type: {selectedVideo.metadata?.mimetype || 'Unknown'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Video Info */}
@@ -612,18 +702,60 @@ export default function KalaPradarshan() {
                 )}
                 
                 {/* Action Buttons */}
-                <div className="flex gap-2 pt-4">
-                  <Button 
-                    onClick={() => handleLikeVideo(selectedVideo.id)}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Like
-                  </Button>
+                <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                  <div className="flex gap-2 flex-1">
+                    <Button 
+                      onClick={() => handleLikeVideo(selectedVideo.id)}
+                      variant="outline"
+                      className="flex-1"
+                      data-testid="like-video-btn"
+                    >
+                      <Heart className="w-4 h-4 mr-2" />
+                      Like ({selectedVideo.likes})
+                    </Button>
+                    
+                    {/* Share Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline"
+                          className="flex-1"
+                          data-testid="share-dropdown"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem 
+                          onClick={() => handleShareVideo(selectedVideo)}
+                          data-testid="share-native"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share Video
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleCopyLink(`${window.location.origin}/kala-pradarshan?video=${selectedVideo.id}`)}
+                          data-testid="copy-link"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleOpenInNewTab(selectedVideo)}
+                          data-testid="open-new-tab"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open in New Tab
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
                   <Button 
                     onClick={() => setSelectedVideo(null)}
                     variant="outline"
+                    data-testid="close-video-modal"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Close
