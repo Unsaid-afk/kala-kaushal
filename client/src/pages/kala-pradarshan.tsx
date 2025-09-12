@@ -11,7 +11,10 @@ import {
   Upload,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  FileVideo,
+  AlertCircle,
+  CheckCircle2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,8 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { getAllSportNames } from "@shared/constants";
 
 interface KalaPradarshanVideo {
@@ -43,10 +50,23 @@ interface KalaPradarshanVideo {
 
 export default function KalaPradarshan() {
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [selectedVideo, setSelectedVideo] = useState<KalaPradarshanVideo | null>(null);
   const [selectedSport, setSelectedSport] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  
+  // Upload form state
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadForm, setUploadForm] = useState({
+    title: '',
+    description: '',
+    sport: '',
+    tags: ''
+  });
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
   const { data: videos, isLoading, error, refetch } = useQuery<KalaPradarshanVideo[]>({
     queryKey: ["/api/kala-pradarshan", selectedSport, page],
@@ -116,6 +136,186 @@ export default function KalaPradarshan() {
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  // Upload form handlers
+  const validateFile = (file: File): string | null => {
+    const allowedTypes = [
+      'video/mp4', 
+      'video/quicktime', 
+      'video/x-msvideo', 
+      'video/webm', 
+      'video/x-matroska',
+      'application/octet-stream' // fallback for some browsers
+    ];
+    const allowedExtensions = ['.mp4', '.mov', '.avi', '.webm', '.mkv'];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    
+    // Check file type or extension if type is not available
+    const isValidType = allowedTypes.includes(file.type) || 
+      allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    
+    if (!isValidType) {
+      return 'Please select a valid video file (MP4, MOV, AVI, WebM, MKV)';
+    }
+    
+    if (file.size > maxSize) {
+      return 'File size must be less than 50MB';
+    }
+    
+    return null;
+  };
+
+  const handleFileSelect = (file: File) => {
+    const error = validateFile(file);
+    if (error) {
+      toast({
+        title: "File Error",
+        description: error,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setUploadFile(file);
+    if (!uploadForm.title) {
+      // Auto-populate title from filename
+      const fileName = file.name.split('.')[0];
+      setUploadForm(prev => ({ ...prev, title: fileName }));
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!uploadFile || !uploadForm.title || !uploadForm.description || !uploadForm.sport) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields and select a video file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      const formData = new FormData();
+      formData.append('video', uploadFile);
+      formData.append('title', uploadForm.title);
+      formData.append('description', uploadForm.description);
+      formData.append('sport', uploadForm.sport);
+      
+      if (uploadForm.tags.trim()) {
+        formData.append('tags', uploadForm.tags);
+      }
+      
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(progress);
+        }
+      });
+      
+      xhr.onload = () => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        
+        if (xhr.status >= 200 && xhr.status < 300) {
+          toast({
+            title: "Success!",
+            description: "Your video has been uploaded successfully",
+          });
+          
+          // Reset form
+          setUploadFile(null);
+          setUploadForm({ title: '', description: '', sport: '', tags: '' });
+          setShowUploadDialog(false);
+          refetch(); // Refresh videos list
+        } else {
+          let errorMessage = 'Upload failed';
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            // If response isn't valid JSON, use default message
+          }
+          
+          toast({
+            title: "Upload Failed",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
+      };
+      
+      xhr.onerror = () => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        
+        toast({
+          title: "Network Error",
+          description: "A network error occurred during upload. Please check your connection and try again.",
+          variant: "destructive",
+        });
+      };
+      
+      xhr.onabort = () => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        
+        toast({
+          title: "Upload Cancelled",
+          description: "The upload was cancelled",
+          variant: "destructive",
+        });
+      };
+      
+      xhr.open('POST', '/api/kala-pradarshan');
+      xhr.send(formData);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      setIsUploading(false);
+      setUploadProgress(0);
+      
+      toast({
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload video",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resetUploadForm = () => {
+    setUploadFile(null);
+    setUploadForm({ title: '', description: '', sport: '', tags: '' });
+    setUploadProgress(0);
+    setIsUploading(false);
+    setDragActive(false);
   };
 
   if (isLoading) {
@@ -435,24 +635,202 @@ export default function KalaPradarshan() {
         </DialogContent>
       </Dialog>
 
-      {/* Upload Dialog Placeholder */}
-      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-        <DialogContent>
+      {/* Upload Dialog */}
+      <Dialog 
+        open={showUploadDialog} 
+        onOpenChange={(open) => {
+          if (!open && !isUploading) {
+            resetUploadForm();
+          }
+          setShowUploadDialog(open);
+        }}
+      >
+        <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>Upload Sports Video</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5" />
+              Share Your Sports Video
+            </DialogTitle>
           </DialogHeader>
-          <div className="text-center py-8">
-            <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">
-              Video upload interface will be implemented next.
-            </p>
-            <Button 
-              onClick={() => setShowUploadDialog(false)}
-              className="mt-4"
-            >
-              Close
-            </Button>
-          </div>
+          
+          <form onSubmit={handleFormSubmit} className="space-y-6">
+            {/* File Upload Area */}
+            <div className="space-y-2">
+              <Label htmlFor="video-upload">Video File *</Label>
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+                  dragActive 
+                    ? 'border-primary bg-primary/5' 
+                    : uploadFile 
+                    ? 'border-green-500 bg-green-50 dark:bg-green-950/20' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('video-upload')?.click()}
+              >
+                {uploadFile ? (
+                  <div className="space-y-2">
+                    <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+                    <p className="font-medium text-green-700 dark:text-green-400">
+                      {uploadFile.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatFileSize(uploadFile.size)} • {uploadFile.type}
+                    </p>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUploadFile(null);
+                      }}
+                    >
+                      Change File
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <FileVideo className="w-12 h-12 text-muted-foreground mx-auto" />
+                    <p className="text-lg font-medium">
+                      Drop your video here or click to browse
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      MP4, MOV, AVI, WebM • Max 50MB
+                    </p>
+                  </div>
+                )}
+                
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileSelect(file);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Title */}
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={uploadForm.title}
+                  onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter video title..."
+                  disabled={isUploading}
+                  maxLength={100}
+                />
+              </div>
+
+              {/* Sport Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="sport">Sport *</Label>
+                <Select 
+                  value={uploadForm.sport} 
+                  onValueChange={(value) => setUploadForm(prev => ({ ...prev, sport: value }))}
+                  disabled={isUploading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select sport" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getAllSportNames().map((sport: string) => (
+                      <SelectItem key={sport} value={sport}>
+                        {sport}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tags */}
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Input
+                  id="tags"
+                  value={uploadForm.tags}
+                  onChange={(e) => setUploadForm(prev => ({ ...prev, tags: e.target.value }))}
+                  placeholder="skill, technique, training..."
+                  disabled={isUploading}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Separate tags with commas
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea
+                  id="description"
+                  value={uploadForm.description}
+                  onChange={(e) => setUploadForm(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe your sports performance, technique, or achievement..."
+                  disabled={isUploading}
+                  rows={3}
+                  maxLength={500}
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {uploadForm.description.length}/500
+                </p>
+              </div>
+            </div>
+
+            {/* Upload Progress */}
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Uploading...</span>
+                  <span className="font-medium">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" />
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (!isUploading) {
+                    resetUploadForm();
+                    setShowUploadDialog(false);
+                  }
+                }}
+                disabled={isUploading}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!uploadFile || !uploadForm.title || !uploadForm.description || !uploadForm.sport || isUploading}
+                className="flex-1"
+              >
+                {isUploading ? (
+                  <>
+                    <Upload className="w-4 h-4 mr-2 animate-pulse" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Video
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
