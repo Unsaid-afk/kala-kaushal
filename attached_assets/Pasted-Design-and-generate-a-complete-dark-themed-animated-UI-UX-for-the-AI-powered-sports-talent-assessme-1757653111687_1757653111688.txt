@@ -1,0 +1,107 @@
+Design and generate a complete dark-themed, animated UI/UX for the AI-powered sports talent assessment platform “Kala Kaushal” (mobile app + web dashboard). The platform should look modern, futuristic, and motivating for athletes while staying professional and data-rich for scouts and officials.
+
+Brand Identity
+
+Name: Kala Kaushal
+
+Theme: Dark mode first with high-contrast accents.
+
+Colors:
+
+Background: Deep Charcoal (#121212)
+
+Primary Accent: Electric Blue (#2979FF)
+
+Secondary Accent: Neon Orange (#FF9100)
+
+Success: Lime Green (#00E676)
+
+Neutral Text: Light Gray (#E0E0E0)
+
+Typography:
+
+Headings: Montserrat SemiBold (white, uppercase)
+
+Body: Inter / Noto Sans (multi-language support: Hindi, Gujarati, English).
+
+Mobile App (React Native, Athlete-Facing)
+
+Onboarding & Profile
+
+Animated splash screen with glowing Kala Kaushal logo.
+
+Fluid transition to sign-up/login (phone/email).
+
+Profile setup with motion cards (name, age, sport, biometrics).
+
+Language selector with animated flag icons.
+
+Test Selection & Recording
+
+Animated test icons (jump icon bouncing, run icon dashing).
+
+Camera screen with glowing overlay guides + skeleton tracking animation.
+
+Countdown with dynamic circular animation.
+
+Real-time feedback with pulse animations (e.g., green glow for correct form, red flash for incorrect).
+
+Results & Engagement
+
+Results screen with animated progress rings, rising bars, and confetti for achievements.
+
+Leaderboards with smooth scroll and highlight animations for top players.
+
+Digital badges that flip/shine when unlocked.
+
+Shareable athlete showcase card with glowing borders.
+
+Web Dashboard (React/Next.js, Scout & SAI Officials)
+
+Login Page
+
+Futuristic glowing login form with animated background particles.
+
+Athlete Directory
+
+Grid of athlete cards with hover animations.
+
+Filters slide in from the left with smooth transitions.
+
+Athlete Profile
+
+Dark theme profile view with glowing stat cards, animated performance graphs, and embedded video player.
+
+AI insights appear with typewriter animation.
+
+Highlights & Analytics
+
+Top athletes showcased in an animated carousel.
+
+Heatmaps with dynamic glowing regions.
+
+Performance distribution charts with smooth bar/line animations.
+
+Design Style & Animation Guidelines
+
+Consistent dark mode with neon accent highlights.
+
+Use Framer Motion or Lottie animations for smooth transitions.
+
+Motion elements: sliding cards, pulsing highlights, glowing borders, flipping badges.
+
+Micro-interactions: button press ripples, leaderboard hover highlights, animated sync indicator.
+
+Output Requirements
+
+Generate React Native app for mobile athletes, dark themed and animated.
+
+Generate React/Next.js web dashboard for scouts, dark themed with glowing analytics.
+
+Provide UI kit: logo, color system, typography, button styles, animated components.
+
+Sample screens:
+
+Mobile: Splash, Onboarding, Test Selection, Recording, Results, Leaderboard, Profile.
+
+Web: Login, Athlete Directory, Profile, Highlights, Analytics.
