@@ -1,9 +1,10 @@
 import { forwardRef } from "react";
 import { motion, MotionProps } from "framer-motion";
-import { Card, CardProps } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import React from "react";
 
-interface MotionCardProps extends CardProps {
+interface MotionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   // Motion-specific props
   delay?: number;
   variant?: 'default' | 'enhanced' | 'gradient' | 'interactive';
@@ -45,23 +46,8 @@ const MotionCard = forwardRef<HTMLDivElement, MotionCardProps>(
     whileInView,
     whileFocus,
     whileDrag,
-    // Extract Card-specific props that need to be forwarded
-    onClick,
-    onMouseEnter,
-    onMouseLeave,
-    onFocus,
-    onBlur,
-    tabIndex,
-    role,
-    id,
-    style,
-    'data-testid': dataTestId,
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledby,
-    'aria-describedby': ariaDescribedby,
-    'aria-expanded': ariaExpanded,
-    'aria-selected': ariaSelected,
-    ...cardProps 
+    // Extract all other HTML attributes for forwarding
+    ...restProps
   }, ref) => {
     const getVariantClasses = () => {
       switch (variant) {
@@ -101,25 +87,8 @@ const MotionCard = forwardRef<HTMLDivElement, MotionCardProps>(
       ...(whileDrag && { whileDrag }),
     };
 
-    // Prepare card props to forward
-    const forwardedCardProps = {
-      onClick,
-      onMouseEnter,
-      onMouseLeave,
-      onFocus,
-      onBlur,
-      tabIndex,
-      role,
-      id,
-      style,
-      ...(dataTestId && { 'data-testid': dataTestId }),
-      ...(ariaLabel && { 'aria-label': ariaLabel }),
-      ...(ariaLabelledby && { 'aria-labelledby': ariaLabelledby }),
-      ...(ariaDescribedby && { 'aria-describedby': ariaDescribedby }),
-      ...(ariaExpanded !== undefined && { 'aria-expanded': ariaExpanded }),
-      ...(ariaSelected !== undefined && { 'aria-selected': ariaSelected }),
-      ...cardProps
-    };
+    // Forward all HTML attributes except motion-specific ones
+    const forwardedCardProps = restProps;
 
     return (
       <motion.div

@@ -265,13 +265,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: assessment.id,
           testTypeId: assessment.testTypeId,
           createdAt: assessment.createdAt,
-          performanceScore: assessment.aiAnalysisResults?.performanceScore || 0,
-          feedback: assessment.aiAnalysisResults?.feedback || '',
+          performanceScore: (assessment.aiAnalysisResults as any)?.performanceScore || 0,
+          feedback: (assessment.aiAnalysisResults as any)?.feedback || '',
           // Note: In a real app, you'd store video URLs or file paths
           // For now, we'll use placeholder data
           thumbnailUrl: `/api/assessments/${assessment.id}/thumbnail`,
           videoUrl: `/api/assessments/${assessment.id}/video`,
-          duration: assessment.aiAnalysisResults?.videoDuration || 30,
+          duration: (assessment.aiAnalysisResults as any)?.videoDuration || 30,
           title: `Assessment ${assessment.id.slice(0, 8)}`,
         }));
 
@@ -302,8 +302,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Update assessment status to processing
         await storage.updateAssessmentStatus(assessmentId, 'processing');
 
-        // Convert video to base64 for OpenAI analysis
-        const base64Video = req.file.buffer.toString('base64');
+        // Read video file for OpenAI analysis
+        const videoBuffer = await fs.readFile(req.file.path);
+        const base64Video = videoBuffer.toString('base64');
         
         // Get test type info
         const testTypes = await storage.getAllTestTypes();

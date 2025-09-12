@@ -51,7 +51,7 @@ export default function Assessment() {
   });
 
   // Get test types
-  const { data: testTypes, isLoading: testTypesLoading } = useQuery({
+  const { data: testTypes = [], isLoading: testTypesLoading } = useQuery({
     queryKey: ["/api/test-types"],
     retry: false,
   });
@@ -372,7 +372,7 @@ export default function Assessment() {
             </div>
           ) : (
             <TestSelection 
-              testTypes={testTypes || []} 
+              testTypes={testTypes as any[]} 
               onTestSelect={handleTestSelect}
               showStartButton={false}
             />

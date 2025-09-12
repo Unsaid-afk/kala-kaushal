@@ -66,20 +66,20 @@ export default function AthleteDashboard() {
   });
 
   // Get test types
-  const { data: testTypes, isLoading: testTypesLoading } = useQuery({
+  const { data: testTypes = [], isLoading: testTypesLoading } = useQuery({
     queryKey: ["/api/test-types"],
     retry: false,
   });
 
   // Get recent assessments
-  const { data: assessments, isLoading: assessmentsLoading } = useQuery({
+  const { data: assessments = [], isLoading: assessmentsLoading } = useQuery({
     queryKey: ["/api/athletes", athlete?.athlete?.id, "assessments"],
     enabled: !!athlete?.athlete?.id,
     retry: false,
   });
 
   // Get achievements
-  const { data: achievements } = useQuery({
+  const { data: achievements = [] } = useQuery({
     queryKey: ["/api/athletes", athlete?.athlete?.id, "achievements"],
     enabled: !!athlete?.athlete?.id,
     retry: false,
@@ -120,7 +120,7 @@ export default function AthleteDashboard() {
   });
 
   useEffect(() => {
-    if (athlete && !athlete.athlete && !createProfileMutation.isPending) {
+    if (athlete && !athlete?.athlete && !createProfileMutation.isPending) {
       setShowOnboarding(true);
     }
   }, [athlete, createProfileMutation.isPending]);
@@ -248,9 +248,9 @@ export default function AthleteDashboard() {
     );
   }
 
-  const athleteProfile = athlete?.athlete as AthleteProfile;
-  const recentAssessments = assessments?.slice(0, 3) || [];
-  const completedTests = assessments?.filter((a: any) => a.status === 'completed').length || 0;
+  const athleteProfile = athlete?.athlete as AthleteProfile || {};
+  const recentAssessments = (assessments as any[]).slice(0, 3);
+  const completedTests = (assessments as any[]).filter((a: any) => a.status === 'completed').length;
   const overallRating = parseFloat(athleteProfile?.overallRating || "0");
 
   return (
