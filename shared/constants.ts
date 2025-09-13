@@ -1,124 +1,121 @@
-// Sports categories and lists for the Kala Kaushal platform
+export const APP_NAME = 'Kala Kaushal'
+export const APP_DESCRIPTION = 'AI-Powered Sports Talent Assessment Platform'
 
-export const SPORTS_CATEGORIES = {
-  TEAM_SPORTS: 'Team Sports',
-  INDIVIDUAL_SPORTS: 'Individual Sports',
-  COMBAT_SPORTS: 'Combat Sports',
-  WATER_SPORTS: 'Water Sports',
-  ATHLETIC_EVENTS: 'Athletic Events',
-  RACQUET_SPORTS: 'Racquet Sports',
-  WINTER_SPORTS: 'Winter Sports',
-  EXTREME_SPORTS: 'Extreme Sports'
-} as const;
+export const ROUTES = {
+  HOME: '/',
+  ASSESSMENT: '/assessment',
+  ATHLETE_DASHBOARD: '/athlete-dashboard',
+  SCOUT_DASHBOARD: '/scout-dashboard',
+  ATHLETE_PROFILE: '/athlete-profile',
+  LEADERBOARD: '/leaderboard',
+  RESULTS: '/results',
+  VIDEO_RECORDING: '/video-recording',
+  KALA_PRADARSHAN: '/kala-pradarshan',
+} as const
 
-export const SPORTS_LIST = [
-  // Team Sports
-  { name: 'Cricket', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏏' },
-  { name: 'Football (Soccer)', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '⚽' },
-  { name: 'Basketball', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏀' },
-  { name: 'Volleyball', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏐' },
-  { name: 'Kabaddi', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🤼' },
-  { name: 'Hockey', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏑' },
-  { name: 'Rugby', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏈' },
-  { name: 'Handball', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🤾' },
-  { name: 'Baseball', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '⚾' },
-  { name: 'American Football', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏈' },
+export const USER_ROLES = {
+  ATHLETE: 'athlete',
+  SCOUT: 'scout',
+  COACH: 'coach',
+  ADMIN: 'admin',
+} as const
 
-  // Individual Sports
-  { name: 'Athletics (Track & Field)', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏃' },
-  { name: 'Swimming', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '🏊' },
-  { name: 'Gymnastics', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🤸' },
-  { name: 'Weightlifting', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏋️' },
-  { name: 'Cycling', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🚴' },
-  { name: 'Running (Marathon)', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Wrestling', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🤼' },
-  { name: 'Boxing', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥊' },
-  { name: 'Archery', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏹' },
-  { name: 'Shooting', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏆' },
+export const ASSESSMENT_TYPES = {
+  VIDEO: 'video',
+  PERFORMANCE: 'performance',
+  SKILL: 'skill',
+} as const
 
-  // Racquet Sports
-  { name: 'Tennis', category: SPORTS_CATEGORIES.RACQUET_SPORTS, emoji: '🎾' },
-  { name: 'Badminton', category: SPORTS_CATEGORIES.RACQUET_SPORTS, emoji: '🏸' },
-  { name: 'Table Tennis', category: SPORTS_CATEGORIES.RACQUET_SPORTS, emoji: '🏓' },
-  { name: 'Squash', category: SPORTS_CATEGORIES.RACQUET_SPORTS, emoji: '🎾' },
+export const ASSESSMENT_STATUS = {
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+} as const
 
-  // Combat Sports
-  { name: 'Judo', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥋' },
-  { name: 'Karate', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥋' },
-  { name: 'Taekwondo', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥋' },
-  { name: 'Mixed Martial Arts (MMA)', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥊' },
-  { name: 'Kung Fu', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥋' },
+export const AI_INSIGHT_TYPES = {
+  PERFORMANCE: 'performance',
+  TECHNIQUE: 'technique',
+  IMPROVEMENT: 'improvement',
+} as const
 
-  // Water Sports
-  { name: 'Water Polo', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '🤽' },
-  { name: 'Diving', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '🏊' },
-  { name: 'Surfing', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '🏄' },
-  { name: 'Sailing', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '⛵' },
-  { name: 'Rowing', category: SPORTS_CATEGORIES.WATER_SPORTS, emoji: '🚣' },
+export const LEADERBOARD_PERIODS = {
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly',
+  ALL_TIME: 'all_time',
+} as const
 
-  // Athletic Events
-  { name: 'Sprinting (100m, 200m, 400m)', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Long Distance Running', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'High Jump', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Long Jump', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Pole Vault', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Shot Put', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Discus Throw', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Javelin Throw', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Hammer Throw', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Decathlon', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
-  { name: 'Heptathlon', category: SPORTS_CATEGORIES.ATHLETIC_EVENTS, emoji: '🏃' },
+export const SPORTS_CATEGORIES = [
+  'Cricket',
+  'Football',
+  'Basketball',
+  'Tennis',
+  'Badminton',
+  'Volleyball',
+  'Athletics',
+  'Swimming',
+  'Gymnastics',
+  'Martial Arts',
+] as const
 
-  // Traditional Indian Sports
-  { name: 'Kho Kho', category: SPORTS_CATEGORIES.TEAM_SPORTS, emoji: '🏃' },
-  { name: 'Mallakhamb', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🤸' },
-  { name: 'Pehlwani (Indian Wrestling)', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🤼' },
-  { name: 'Gatka', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '⚔️' },
-  { name: 'Kalaripayattu', category: SPORTS_CATEGORIES.COMBAT_SPORTS, emoji: '🥋' },
+export const PERFORMANCE_METRICS = {
+  SPEED: 'speed',
+  ACCURACY: 'accuracy',
+  POWER: 'power',
+  ENDURANCE: 'endurance',
+  FLEXIBILITY: 'flexibility',
+  COORDINATION: 'coordination',
+  REACTION_TIME: 'reaction_time',
+  STRATEGY: 'strategy',
+} as const
 
-  // Winter Sports (for completeness)
-  { name: 'Skiing', category: SPORTS_CATEGORIES.WINTER_SPORTS, emoji: '⛷️' },
-  { name: 'Ice Hockey', category: SPORTS_CATEGORIES.WINTER_SPORTS, emoji: '🏒' },
-  { name: 'Figure Skating', category: SPORTS_CATEGORIES.WINTER_SPORTS, emoji: '⛸️' },
-  { name: 'Snowboarding', category: SPORTS_CATEGORIES.WINTER_SPORTS, emoji: '🏂' },
+export const API_ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    LOGOUT: '/api/auth/logout',
+    REGISTER: '/api/auth/register',
+    PROFILE: '/api/auth/profile',
+  },
+  ASSESSMENTS: {
+    LIST: '/api/assessments',
+    CREATE: '/api/assessments',
+    GET: '/api/assessments/:id',
+    UPDATE: '/api/assessments/:id',
+    DELETE: '/api/assessments/:id',
+  },
+  VIDEOS: {
+    UPLOAD: '/api/videos/upload',
+    LIST: '/api/videos',
+    GET: '/api/videos/:id',
+    DELETE: '/api/videos/:id',
+  },
+  AI_INSIGHTS: {
+    GENERATE: '/api/ai/insights',
+    LIST: '/api/ai/insights',
+    GET: '/api/ai/insights/:id',
+  },
+  LEADERBOARD: {
+    GET: '/api/leaderboard',
+  },
+} as const
 
-  // Extreme/Adventure Sports
-  { name: 'Rock Climbing', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🧗' },
-  { name: 'Paragliding', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🪂' },
-  { name: 'Skateboarding', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🛹' },
-  { name: 'BMX', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🚴' },
+export const FILE_UPLOAD_LIMITS = {
+  MAX_SIZE: 100 * 1024 * 1024, // 100MB
+  ALLOWED_TYPES: ['video/mp4', 'video/webm', 'video/quicktime'],
+  MAX_DURATION: 300, // 5 minutes
+} as const
 
-  // Motor Sports
-  { name: 'Motor Racing', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🏎️' },
-  { name: 'Motorcycle Racing', category: SPORTS_CATEGORIES.EXTREME_SPORTS, emoji: '🏍️' },
+export const ANIMATION_DURATIONS = {
+  FAST: 150,
+  NORMAL: 300,
+  SLOW: 500,
+} as const
 
-  // Equestrian
-  { name: 'Equestrian', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏇' },
-
-  // Golf
-  { name: 'Golf', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '⛳' },
-
-  // Yoga/Fitness
-  { name: 'Yoga', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🧘' },
-  { name: 'Bodybuilding', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '💪' },
-  { name: 'Powerlifting', category: SPORTS_CATEGORIES.INDIVIDUAL_SPORTS, emoji: '🏋️' },
-] as const;
-
-// Helper functions
-export const getSportsByCategory = (category: string) => {
-  return SPORTS_LIST.filter(sport => sport.category === category);
-};
-
-export const getAllSportNames = () => {
-  return SPORTS_LIST.map(sport => sport.name);
-};
-
-export const getSportEmoji = (sportName: string) => {
-  const sport = SPORTS_LIST.find(s => s.name === sportName);
-  return sport?.emoji || '🏆';
-};
-
-export const getSportCategory = (sportName: string) => {
-  const sport = SPORTS_LIST.find(s => s.name === sportName);
-  return sport?.category || SPORTS_CATEGORIES.INDIVIDUAL_SPORTS;
-};
+export const BREAKPOINTS = {
+  SM: 640,
+  MD: 768,
+  LG: 1024,
+  XL: 1280,
+  '2XL': 1536,
+} as const
